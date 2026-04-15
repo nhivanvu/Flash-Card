@@ -1,0 +1,71 @@
+---
+description: TypeScript coding standards and best practices
+globs: "**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# TypeScript Standards
+
+## Type Definitions
+
+```typescript
+// ✅ GOOD - Use interfaces for object shapes
+interface FlashCard {
+  id: string;
+  question: string;
+  answer: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  createdAt: Date;
+}
+
+// ✅ GOOD - Use type for unions and primitives
+type CardStatus = 'active' | 'archived' | 'draft';
+type CardId = string;
+```
+
+## Error Handling
+
+```typescript
+// ❌ BAD - Silent catch
+try {
+  await fetchData();
+} catch (e) {}
+
+// ✅ GOOD - Proper error handling
+try {
+  await fetchData();
+} catch (error) {
+  console.error('Failed to fetch data:', error);
+  throw new Error('Unable to retrieve data', { cause: error });
+}
+```
+
+## Function Types
+
+```typescript
+// ✅ GOOD - Explicit return types for exported functions
+export async function createCard(data: CardData): Promise<FlashCard> {
+  return await api.post('/cards', data);
+}
+
+// ✅ GOOD - Use const assertions for readonly data
+const DIFFICULTY_LEVELS = ['easy', 'medium', 'hard'] as const;
+type Difficulty = typeof DIFFICULTY_LEVELS[number];
+```
+
+## Strict Mode
+
+- Enable strict mode in tsconfig.json
+- Use `satisfies` operator for type checking
+- Prefer `unknown` over `any`
+- Use optional chaining `?.` and nullish coalescing `??`
+
+```typescript
+// ✅ GOOD
+const config = {
+  apiUrl: 'https://api.example.com',
+  timeout: 5000,
+} satisfies Config;
+
+const value = data?.user?.name ?? 'Unknown';
+```

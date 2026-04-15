@@ -1,0 +1,94 @@
+---
+description: React component patterns and hooks best practices
+globs: "**/*.{tsx,jsx}"
+alwaysApply: false
+---
+
+# React Component Patterns
+
+## Component Structure
+
+```typescript
+// ✅ GOOD - Function component with proper typing
+interface CardProps {
+  card: FlashCard;
+  onFlip: (id: string) => void;
+  className?: string;
+}
+
+export default function Card({ card, onFlip, className = '' }: CardProps) {
+  return (
+    <div className={`card ${className}`} onClick={() => onFlip(card.id)}>
+      <h3>{card.question}</h3>
+    </div>
+  );
+}
+```
+
+## Custom Hooks
+
+```typescript
+// ✅ GOOD - Extract reusable logic to custom hooks
+function useFlashCards() {
+  const [cards, setCards] = useState<FlashCard[]>([]);
+  const [loading, setLoading] = useState(false);
+  
+  const addCard = useCallback(async (cardData: CardData) => {
+    setLoading(true);
+    try {
+      const newCard = await api.createCard(cardData);
+      setCards(prev => [...prev, newCard]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  
+  return { cards, loading, addCard };
+}
+```
+
+## State Management
+
+```typescript
+// ✅ GOOD - Use useReducer for complex state
+interface CardState {
+  cards: FlashCard[];
+  currentIndex: number;
+  showAnswer: boolean;
+}
+
+type CardAction = 
+  | { type: 'LOAD_CARDS'; payload: FlashCard[] }
+  | { type: 'NEXT_CARD' }
+  | { type: 'TOGGLE_ANSWER' };
+
+function cardReducer(state: CardState, action: CardAction): CardState {
+  switch (action.type) {
+    case 'LOAD_CARDS':
+      return { ...state, cards: action.payload };
+    case 'NEXT_CARD':
+      return { ...state, currentIndex: state.currentIndex + 1, showAnswer: false };
+    case 'TOGGLE_ANSWER':
+      return { ...state, showAnswer: !state.showAnswer };
+    default:
+      return state;
+  }
+}
+```
+
+## Performance
+
+- Use `React.memo` for expensive components
+- Wrap functions in `useCallback` when passed as props
+- Use `useMemo` for expensive calculations
+- Prefer `useId` for unique IDs in SSR
+
+```typescript
+const ExpensiveCard = React.memo(function Card({ card }: CardProps) {
+  const expensiveValue = useMemo(() => 
+    calculateComplexValue(card.data), [card.data]
+  );
+  
+  return <div>{expensiveValue}</div>;
+});
+```

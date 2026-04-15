@@ -1,0 +1,128 @@
+---
+description: File organization and project structure conventions
+alwaysApply: true
+---
+
+# Project Structure & Organization
+
+## Directory Structure
+
+```
+src/
+  app/                    # Next.js App Router
+    (auth)/              # Route groups
+    dashboard/           # Feature routes
+      page.tsx
+      loading.tsx
+      error.tsx
+    globals.css
+    layout.tsx
+    page.tsx
+  components/             # Reusable UI components
+    ui/                  # Basic UI components
+      Button.tsx
+      Card.tsx
+      Modal.tsx
+    forms/               # Form-specific components
+  hooks/                 # Custom React hooks
+  lib/                   # Utilities and configurations
+    api.ts
+    utils.ts
+    types.ts
+  types/                 # TypeScript type definitions
+    global.d.ts
+    api.ts
+```
+
+## Naming Conventions
+
+### Files & Folders
+- **Components**: PascalCase (`FlashCard.tsx`)
+- **Pages**: lowercase (`page.tsx`, `layout.tsx`)
+- **Hooks**: camelCase starting with 'use' (`useFlashCards.ts`)
+- **Utils**: camelCase (`formatDate.ts`)
+- **Types**: camelCase (`flashCard.types.ts`)
+
+### Variables & Functions
+```typescript
+// ✅ GOOD
+const flashCardData = {...};
+const isCardVisible = true;
+function createFlashCard() {...}
+const handleCardClick = () => {...};
+
+// Component props
+interface FlashCardProps {...}
+interface ButtonVariants {...}
+```
+
+## Import Organization
+
+```typescript
+// ✅ GOOD - Import order
+// 1. React & Next.js
+import React from 'react';
+import { useState, useEffect } from 'react';
+import { NextPage } from 'next';
+
+// 2. Third-party libraries
+import clsx from 'clsx';
+
+// 3. Internal components & hooks
+import { Card } from '@/components/ui/Card';
+import { useFlashCards } from '@/hooks/useFlashCards';
+
+// 4. Utils & types
+import { formatDate } from '@/lib/utils';
+import type { FlashCard } from '@/types/flashCard';
+
+// 5. Relative imports
+import './styles.css';
+```
+
+## File Templates
+
+### Component Template
+```typescript
+interface ComponentProps {
+  // Define props here
+}
+
+export default function Component({ }: ComponentProps) {
+  return (
+    <div>
+      {/* Component content */}
+    </div>
+  );
+}
+```
+
+### Page Template
+```typescript
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Page Title',
+  description: 'Page description',
+};
+
+export default function Page() {
+  return (
+    <main>
+      <h1>Page Content</h1>
+    </main>
+  );
+}
+```
+
+## Barrel Exports
+
+```typescript
+// components/ui/index.ts
+export { Button } from './Button';
+export { Card } from './Card';
+export { Modal } from './Modal';
+
+// Usage
+import { Button, Card } from '@/components/ui';
+```

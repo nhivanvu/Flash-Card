@@ -1,0 +1,95 @@
+---
+description: Tailwind CSS v4 usage conventions and patterns
+globs: "**/*.{tsx,jsx}"
+alwaysApply: false
+---
+
+# Tailwind CSS Conventions
+
+## Class Organization
+
+```typescript
+// ✅ GOOD - Organize classes logically
+<div className={`
+  // Layout
+  flex flex-col items-center justify-center
+  // Spacing
+  p-6 gap-4
+  // Sizing
+  w-full max-w-md min-h-screen
+  // Colors & appearance
+  bg-white border border-gray-200 rounded-lg shadow-md
+  // States
+  hover:shadow-lg transition-shadow
+  // Responsive
+  md:p-8 md:max-w-lg
+`}>
+```
+
+## Component Styling
+
+```typescript
+// ✅ GOOD - Use consistent spacing and sizing patterns
+const cardStyles = {
+  container: 'p-4 bg-white rounded-lg shadow-sm border',
+  header: 'text-lg font-semibold text-gray-900 mb-2',
+  content: 'text-gray-700 leading-relaxed',
+  button: 'px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors',
+};
+
+function FlashCard() {
+  return (
+    <div className={cardStyles.container}>
+      <h3 className={cardStyles.header}>Question</h3>
+      <p className={cardStyles.content}>Answer content</p>
+      <button className={cardStyles.button}>Next Card</button>
+    </div>
+  );
+}
+```
+
+## Responsive Design
+
+```typescript
+// ✅ GOOD - Mobile-first responsive design
+<div className={`
+  // Mobile (default)
+  grid grid-cols-1 gap-4 p-4
+  // Tablet
+  sm:grid-cols-2 sm:gap-6 sm:p-6
+  // Desktop
+  lg:grid-cols-3 lg:gap-8 lg:p-8
+  // Large desktop
+  xl:grid-cols-4 xl:gap-10
+`}>
+```
+
+## Dark Mode Support
+
+```typescript
+// ✅ GOOD - Include dark mode variants
+<div className={`
+  bg-white text-gray-900
+  dark:bg-gray-900 dark:text-white
+  border-gray-200 dark:border-gray-700
+`}>
+```
+
+## Animation & Transitions
+
+```typescript
+// ✅ GOOD - Smooth transitions for interactions
+<button className={`
+  transform transition-all duration-200 ease-in-out
+  hover:scale-105 hover:shadow-md
+  active:scale-95
+  focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+`}>
+```
+
+## Utility Patterns
+
+- Use `space-y-*` for vertical spacing between children
+- Use `divide-y` for borders between elements
+- Prefer `text-*` over custom font sizes
+- Use `ring-*` for focus states instead of `outline`
