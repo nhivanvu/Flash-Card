@@ -11,9 +11,9 @@ export const metadata: Metadata = {
 export default async function Dashboard() {
   const { userId } = await auth()
   
-  // Redirect to sign-in if not authenticated
+  // Redirect to home if not authenticated (user can sign in via modal there)
   if (!userId) {
-    redirect('/sign-in')
+    redirect('/')
   }
 
   return (
