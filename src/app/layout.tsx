@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins, Geist_Mono } from "next/font/google";
 import { ClerkProvider, SignInButton, SignUpButton, Show, UserButton } from "@clerk/nextjs";
+import { dark } from "@clerk/ui/themes";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -30,7 +31,11 @@ export default function RootLayout({
       className={`${poppins.variable} ${geistMono.variable} h-full antialiased dark`}
     >
       <body className="min-h-full flex flex-col">
-        <ClerkProvider>
+        <ClerkProvider
+          appearance={{
+            theme: dark,
+          }}
+        >
           <header className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
             <div className="container mx-auto px-4 py-3 flex items-center justify-between">
               <div className="text-xl font-semibold text-gray-900 dark:text-white">
