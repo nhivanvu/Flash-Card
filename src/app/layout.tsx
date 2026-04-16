@@ -33,8 +33,8 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <ClerkProvider
           appearance={{
-            theme: dark,
-          }}
+            baseTheme: dark,
+          } as any}
         >
           <header className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
             <div className="container mx-auto px-4 py-3 flex items-center justify-between">
