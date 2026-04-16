@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins, Geist_Mono } from "next/font/google";
-import { ClerkProvider, SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { ClerkProvider, SignInButton, SignUpButton, Show, UserButton } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 import "./globals.css";
 
@@ -42,13 +42,13 @@ export default function RootLayout({
                 FlashyCardy
               </div>
               <div className="flex items-center gap-3">
-                <SignedOut>
+                <Show when="signed-out">
                   <SignInButton />
                   <SignUpButton />
-                </SignedOut>
-                <SignedIn>
+                </Show>
+                <Show when="signed-in">
                   <UserButton />
-                </SignedIn>
+                </Show>
               </div>
             </div>
           </header>
