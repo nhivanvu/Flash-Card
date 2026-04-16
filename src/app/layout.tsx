@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins, Geist_Mono } from "next/font/google";
-import { ClerkProvider, SignInButton, SignUpButton, Show, UserButton } from "@clerk/nextjs";
+import { ClerkProvider, SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 import "./globals.css";
 
@@ -33,8 +33,8 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <ClerkProvider
           appearance={{
-            baseTheme: dark,
-          } as any}
+            theme: dark,
+          }}
         >
           <header className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
             <div className="container mx-auto px-4 py-3 flex items-center justify-between">
@@ -42,13 +42,13 @@ export default function RootLayout({
                 FlashyCardy
               </div>
               <div className="flex items-center gap-3">
-                <Show when="signed-out">
+                <SignedOut>
                   <SignInButton />
                   <SignUpButton />
-                </Show>
-                <Show when="signed-in">
+                </SignedOut>
+                <SignedIn>
                   <UserButton />
-                </Show>
+                </SignedIn>
               </div>
             </div>
           </header>
