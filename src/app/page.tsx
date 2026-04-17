@@ -1,9 +1,9 @@
-import { auth } from '@clerk/nextjs';
+import { auth } from '@clerk/nextjs/server';
 import { SignUpButton, SignInButton } from '@clerk/nextjs';
 import { redirect } from 'next/navigation';
 
 export default async function HomePage() {
-  const { userId } = auth();
+  const { userId } = await auth();
   
   // Redirect signed-in users to dashboard
   if (userId) {
@@ -75,28 +75,6 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* CSS for 3D flip animation */}
-      <style jsx>{`
-        .perspective-1000 {
-          perspective: 1000px;
-        }
-        
-        .preserve-3d {
-          transform-style: preserve-3d;
-        }
-        
-        .backface-hidden {
-          backface-visibility: hidden;
-        }
-        
-        .rotate-y-180 {
-          transform: rotateY(180deg);
-        }
-        
-        .flashcard-inner {
-          transform-style: preserve-3d;
-        }
-      `}</style>
     </div>
   );
 }
