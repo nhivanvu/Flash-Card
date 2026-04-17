@@ -1,0 +1,129 @@
+---
+description: Database interactions must always use Drizzle ORM schema and queries
+alwaysApply: true
+---
+
+# Database Interactions with Drizzle ORM
+
+All database operations must use the Drizzle ORM schema and query patterns defined in `src/db/schema.ts`.
+
+## Required Imports
+
+```typescript
+// ✅ GOOD - Always import from schema
+import { db } from '@/db';
+import { decks, cards, type Deck, type NewDeck, type Card, type NewCard } from '@/db/schema';
+
+// ✅ GOOD - Import Drizzle query helpers
+import { eq, desc, asc, and, or } from 'drizzle-orm';
+```
+
+## Schema Usage
+
+### ✅ GOOD - Use schema types
+```typescript
+// Use inferred types from schema
+function createDeck(data: NewDeck): Promise<Deck> {
+  return db.insert(decks).values(data).returning();
+}
+
+function getDeck(id: string): Promise<Deck | undefined> {
+  return db.select().from(decks).where(eq(decks.id, id)).get();
+}
+```
+
+### ❌ BAD - Raw SQL or manual types
+```typescript
+// DON'T write raw SQL
+await db.execute('SELECT * FROM decks WHERE id = $1', [id]);
+
+// DON'T define manual types when schema types exist
+interface ManualDeck {
+  id: string;
+  title: string;
+  // ... duplicating schema
+}
+```
+
+## Query Patterns
+
+### Select Queries
+```typescript
+// ✅ Single record
+const deck = await db.select().from(decks).where(eq(decks.id, id));
+
+// ✅ Multiple records with conditions
+const userDecks = await db.select()
+  .from(decks)
+  .where(eq(decks.userId, userId))
+  .orderBy(desc(decks.createdAt));
+
+// ✅ With relations
+const deckWithCards = await db.select().from(decks)
+  .leftJoin(cards, eq(cards.deckId, decks.id))
+  .where(eq(decks.id, id));
+```
+
+### Insert Operations
+```typescript
+// ✅ Single insert
+const [newDeck] = await db.insert(decks)
+  .values({ title, description, userId })
+  .returning();
+
+// ✅ Batch insert
+await db.insert(cards).values([
+  { deckId, front: 'Question 1', back: 'Answer 1' },
+  { deckId, front: 'Question 2', back: 'Answer 2' },
+]);
+```
+
+### Update Operations
+```typescript
+// ✅ Update with conditions
+await db.update(decks)
+  .set({ title: newTitle, updatedAt: new Date() })
+  .where(eq(decks.id, id));
+```
+
+### Delete Operations
+```typescript
+// ✅ Conditional delete
+await db.delete(cards).where(eq(cards.deckId, deckId));
+
+// ✅ Cascade deletes are handled by schema constraints
+await db.delete(decks).where(eq(decks.id, id));
+```
+
+## Common Locations
+
+This rule applies everywhere, but database interactions commonly occur in:
+- API routes: `src/app/api/**/*.ts`
+- Database utilities: `src/db/**/*.ts`
+- Server actions: `src/app/**/*actions.ts`
+- Library functions: `src/lib/**/*.ts`
+
+## Error Handling
+
+```typescript
+// ✅ GOOD - Handle Drizzle errors appropriately
+try {
+  const deck = await db.select().from(decks).where(eq(decks.id, id));
+  if (!deck.length) {
+    throw new Error('Deck not found');
+  }
+  return deck[0];
+} catch (error) {
+  if (error instanceof Error) {
+    throw new Error(`Database error: ${error.message}`);
+  }
+  throw error;
+}
+```
+
+## Performance Notes
+
+- Use `.get()` for single record queries when you expect one result
+- Use appropriate indexes defined in schema migrations
+- Leverage Drizzle's query optimization features
+- Use batch operations for multiple inserts/updates
