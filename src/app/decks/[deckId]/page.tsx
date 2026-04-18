@@ -19,16 +19,7 @@ interface DeckPageProps {
 }
 
 export async function generateMetadata({ params }: DeckPageProps): Promise<Metadata> {
-  // #region agent log
-  fetch('http://127.0.0.1:7628/ingest/d558bd1e-dfb0-4cdd-bd65-960d43cf092f',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'f8a9c4'},body:JSON.stringify({sessionId:'f8a9c4',location:'page.tsx:21',message:'generateMetadata params before await',data:{params:params,paramsType:typeof params},timestamp:Date.now(),hypothesisId:'A'})}).catch(()=>{});
-  // #endregion
-
   const resolvedParams = await params;
-
-  // #region agent log
-  fetch('http://127.0.0.1:7628/ingest/d558bd1e-dfb0-4cdd-bd65-960d43cf092f',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'f8a9c4'},body:JSON.stringify({sessionId:'f8a9c4',location:'page.tsx:26',message:'generateMetadata params after await',data:{resolvedParams:resolvedParams,deckId:resolvedParams.deckId},timestamp:Date.now(),runId:'post-fix',hypothesisId:'A'})}).catch(()=>{});
-  // #endregion
-
   const { userId } = await auth();
   if (!userId) {
     return {
@@ -37,15 +28,7 @@ export async function generateMetadata({ params }: DeckPageProps): Promise<Metad
     };
   }
 
-  // #region agent log
-  fetch('http://127.0.0.1:7628/ingest/d558bd1e-dfb0-4cdd-bd65-960d43cf092f',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'f8a9c4'},body:JSON.stringify({sessionId:'f8a9c4',location:'page.tsx:37',message:'generateMetadata deckId before getDeckWithCards',data:{deckId:resolvedParams.deckId,userId:userId},timestamp:Date.now(),runId:'post-fix',hypothesisId:'A,B'})}).catch(()=>{});
-  // #endregion
-
   const deckWithCards = await getDeckWithCards(resolvedParams.deckId, userId);
-
-  // #region agent log
-  fetch('http://127.0.0.1:7628/ingest/d558bd1e-dfb0-4cdd-bd65-960d43cf092f',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'f8a9c4'},body:JSON.stringify({sessionId:'f8a9c4',location:'page.tsx:42',message:'generateMetadata getDeckWithCards result',data:{deckWithCards:deckWithCards,hasResult:!!deckWithCards},timestamp:Date.now(),runId:'post-fix',hypothesisId:'B,C'})}).catch(()=>{});
-  // #endregion
   
   return {
     title: deckWithCards ? `${deckWithCards.deck.title} - FlashyCardy` : 'Deck - FlashyCardy',
@@ -54,36 +37,16 @@ export async function generateMetadata({ params }: DeckPageProps): Promise<Metad
 }
 
 export default async function DeckPage({ params }: DeckPageProps) {
-  // #region agent log
-  fetch('http://127.0.0.1:7628/ingest/d558bd1e-dfb0-4cdd-bd65-960d43cf092f',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'f8a9c4'},body:JSON.stringify({sessionId:'f8a9c4',location:'page.tsx:51',message:'DeckPage params before await',data:{params:params,paramsType:typeof params},timestamp:Date.now(),hypothesisId:'A'})}).catch(()=>{});
-  // #endregion
-
   const resolvedParams = await params;
-
-  // #region agent log
-  fetch('http://127.0.0.1:7628/ingest/d558bd1e-dfb0-4cdd-bd65-960d43cf092f',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'f8a9c4'},body:JSON.stringify({sessionId:'f8a9c4',location:'page.tsx:56',message:'DeckPage params after await',data:{resolvedParams:resolvedParams,deckId:resolvedParams.deckId},timestamp:Date.now(),runId:'post-fix',hypothesisId:'A'})}).catch(()=>{});
-  // #endregion
-
   const { userId } = await auth();
   
   if (!userId) {
     redirect('/');
   }
 
-  // #region agent log
-  fetch('http://127.0.0.1:7628/ingest/d558bd1e-dfb0-4cdd-bd65-960d43cf092f',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'f8a9c4'},body:JSON.stringify({sessionId:'f8a9c4',location:'page.tsx:66',message:'DeckPage deckId before getDeckWithCards',data:{deckId:resolvedParams.deckId,userId:userId},timestamp:Date.now(),runId:'post-fix',hypothesisId:'A,B'})}).catch(()=>{});
-  // #endregion
-
   const deckWithCards = await getDeckWithCards(resolvedParams.deckId, userId);
 
-  // #region agent log
-  fetch('http://127.0.0.1:7628/ingest/d558bd1e-dfb0-4cdd-bd65-960d43cf092f',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'f8a9c4'},body:JSON.stringify({sessionId:'f8a9c4',location:'page.tsx:71',message:'DeckPage getDeckWithCards result',data:{deckWithCards:deckWithCards,hasResult:!!deckWithCards},timestamp:Date.now(),runId:'post-fix',hypothesisId:'B,C'})}).catch(()=>{});
-  // #endregion
-
   if (!deckWithCards) {
-    // #region agent log
-    fetch('http://127.0.0.1:7628/ingest/d558bd1e-dfb0-4cdd-bd65-960d43cf092f',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'f8a9c4'},body:JSON.stringify({sessionId:'f8a9c4',location:'page.tsx:76',message:'DeckPage calling notFound()',data:{reason:'deckWithCards is falsy'},timestamp:Date.now(),runId:'post-fix',hypothesisId:'C'})}).catch(()=>{});
-    // #endregion
     notFound();
   }
 
