@@ -6,14 +6,15 @@ import { Button } from '@/components/ui/button';
 
 interface StudyCardsProps {
   cards: Card[];
+  isStudyMode: boolean;
+  onEndStudySession: () => void;
 }
 
-export default function StudyCards({ cards }: StudyCardsProps) {
+export default function StudyCards({ cards, isStudyMode, onEndStudySession }: StudyCardsProps) {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
-  const [isStudyMode, setIsStudyMode] = useState(false);
 
-  if (cards.length === 0) return null;
+  if (cards.length === 0 || !isStudyMode) return null;
 
   const currentCard = cards[currentCardIndex];
   const progress = ((currentCardIndex + 1) / cards.length) * 100;
@@ -24,7 +25,7 @@ export default function StudyCards({ cards }: StudyCardsProps) {
       setIsFlipped(false);
     } else {
       // End of study session
-      setIsStudyMode(false);
+      onEndStudySession();
       setCurrentCardIndex(0);
       setIsFlipped(false);
     }
@@ -41,41 +42,11 @@ export default function StudyCards({ cards }: StudyCardsProps) {
     setIsFlipped(!isFlipped);
   };
 
-  const startStudySession = () => {
-    setIsStudyMode(true);
-    setCurrentCardIndex(0);
-    setIsFlipped(false);
-  };
-
   const endStudySession = () => {
-    setIsStudyMode(false);
+    onEndStudySession();
     setCurrentCardIndex(0);
     setIsFlipped(false);
   };
-
-  if (!isStudyMode) {
-    return (
-      <section className="text-center py-8">
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <h2 className="text-2xl font-semibold text-white">Ready to Study?</h2>
-            <p className="text-gray-400">
-              Review {cards.length} cards in this deck
-            </p>
-          </div>
-          <Button 
-            onClick={startStudySession}
-            className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-semibold px-8 py-4"
-          >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Start Study Session
-          </Button>
-        </div>
-      </section>
-    );
-  }
 
   return (
     <section className="space-y-6">
