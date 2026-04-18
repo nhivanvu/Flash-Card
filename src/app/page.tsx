@@ -1,6 +1,57 @@
+'use client';
+
 import { auth } from '@clerk/nextjs/server';
 import { SignUpButton, SignInButton } from '@clerk/nextjs';
 import { redirect } from 'next/navigation';
+import { useState, useEffect } from 'react';
+
+function FlashcardDemo() {
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsFlipped(prev => !prev);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="flex justify-center lg:justify-end">
+      <div className="perspective-1000">
+        <div className="flashcard-container">
+          <div className={`flashcard-inner relative w-80 h-48 transition-transform duration-700 preserve-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
+            {/* Front of card */}
+            <div className="flashcard-face absolute inset-0 w-full h-full backface-hidden rounded-xl flex items-center justify-center"
+                 style={{
+                   background: 'rgba(255, 255, 255, 0.05)',
+                   backdropFilter: 'blur(20px)',
+                   border: '1px solid rgba(255, 255, 255, 0.2)',
+                   boxShadow: '0 8px 32px rgba(255, 255, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
+                 }}>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-white">Ciao</div>
+              </div>
+            </div>
+            
+            {/* Back of card */}
+            <div className="flashcard-face absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-xl flex items-center justify-center"
+                 style={{
+                   background: 'rgba(255, 255, 255, 0.05)',
+                   backdropFilter: 'blur(20px)',
+                   border: '1px solid rgba(255, 255, 255, 0.2)',
+                   boxShadow: '0 8px 32px rgba(255, 255, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
+                 }}>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-white">Hello in Italian</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default async function HomePage() {
   const { userId } = await auth();
@@ -44,34 +95,7 @@ export default async function HomePage() {
           </div>
 
           {/* Right side - Animated Flashcard */}
-          <div className="flex justify-center lg:justify-end">
-            <div className="perspective-1000">
-              <div className="flashcard-container group cursor-pointer">
-                <div className="flashcard-inner relative w-80 h-48 transition-transform duration-700 preserve-3d group-hover:rotate-y-180">
-                  {/* Front of card */}
-                  <div className="flashcard-face absolute inset-0 w-full h-full backface-hidden bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl border border-gray-700 shadow-2xl flex items-center justify-center">
-                    <div className="text-center space-y-4">
-                      <div className="text-3xl font-bold text-white">Ciao</div>
-                      <div className="text-sm text-gray-400 uppercase tracking-wider">Front</div>
-                    </div>
-                  </div>
-                  
-                  {/* Back of card */}
-                  <div className="flashcard-face absolute inset-0 w-full h-full backface-hidden rotate-y-180 bg-gradient-to-br from-blue-800 to-purple-900 rounded-xl border border-blue-600 shadow-2xl flex items-center justify-center">
-                    <div className="text-center space-y-4">
-                      <div className="text-2xl font-bold text-white">Hello in Italian</div>
-                      <div className="text-sm text-blue-300 uppercase tracking-wider">Back</div>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Hover hint */}
-                <div className="mt-4 text-center">
-                  <p className="text-gray-500 text-sm">Hover to flip</p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <FlashcardDemo />
         </div>
       </div>
 
