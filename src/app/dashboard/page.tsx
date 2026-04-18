@@ -56,13 +56,13 @@ export default async function Dashboard() {
       <div className="absolute w-50 h-50 rounded-full blur-3xl opacity-50 z-0" 
            style={{ backgroundColor: '#6366f1', bottom: '20%', right: '15%' }} />
 
-      <div className="relative z-10 container mx-auto px-4 py-8 space-y-8">
+<div className="relative z-10 max-w-6xl mx-auto px-8 py-8 space-y-8"> 
         {/* Header Section */}
         <header className="space-y-2">
-          <h1 className="text-4xl md:text-5xl font-bold text-white">
+          <h1 className="text-3xl font-bold text-white">
             Welcome back, {firstName}!
           </h1>
-          <p className="text-xl text-gray-400">
+          <p className="text-base text-gray-400">
             Ready to continue your learning journey?
           </p>
         </header>
@@ -79,7 +79,7 @@ export default async function Dashboard() {
 
         {/* Decks Grid */}
         {userDecksWithCardCounts.length > 0 ? (
-          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {userDecksWithCardCounts.map((deck) => (
               <Card
                 key={deck.id}
@@ -120,7 +120,7 @@ export default async function Dashboard() {
                   <Button 
                     variant="default" 
                     size="sm"
-                    className="flex-1 bg-green-600/80 hover:bg-green-600 text-white backdrop-blur-sm border-0"
+                    className="flex-1"
                   >
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.168 18.477 18.582 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -130,7 +130,7 @@ export default async function Dashboard() {
                   <Button 
                     variant="outline" 
                     size="sm"
-                    className="flex-1 border-white/30 text-white hover:bg-white/10 backdrop-blur-sm"
+                    className="flex-1"
                   >
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
