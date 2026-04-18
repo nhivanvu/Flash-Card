@@ -56,7 +56,7 @@ export default async function Dashboard() {
       <div className="absolute w-50 h-50 rounded-full blur-3xl opacity-50 z-0" 
            style={{ backgroundColor: '#6366f1', bottom: '20%', right: '15%' }} />
 
-<div className="relative z-10 max-w-6xl mx-auto px-8 py-8 space-y-8"> 
+<div className="relative z-10 max-w-6xl mx-auto px-16 py-16 space-y-12">
         {/* Header Section */}
         <header className="space-y-2">
           <h1 className="text-3xl font-bold text-white">
@@ -88,7 +88,7 @@ export default async function Dashboard() {
                 {/* Glassmorphism overlay */}
                 <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-xl pointer-events-none" />
                 
-                <CardHeader className="relative z-10 space-y-2">
+                <CardHeader className="relative z-10 space-y-3 p-6">
                   <CardTitle className="text-xl font-semibold text-white group-hover:text-blue-300 transition-colors">
                     {deck.title}
                   </CardTitle>
@@ -116,7 +116,7 @@ export default async function Dashboard() {
                   </CardContent>
                 )}
 
-                <CardFooter className="relative z-10 bg-transparent border-t-white/10 p-4 space-x-3">
+                <CardFooter className="relative z-10 bg-transparent border-t-white/10 p-6 space-x-3 mt-auto">
                   <Button 
                     variant="default" 
                     size="sm"
