@@ -3,15 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { getUserDecksWithCardCounts } from '@/db/queries/decks'
-import { Button } from '@/components/ui/button'
-import { 
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-  CardDescription 
-} from '@/components/ui/card'
+import { DeckCard } from './DeckCard'
 
 export const metadata: Metadata = {
   title: 'Dashboard - FlashyCardy',
@@ -68,69 +60,7 @@ export default async function Dashboard() {
         {userDecksWithCardCounts.length > 0 ? (
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {userDecksWithCardCounts.map((deck) => (
-              <Card
-                key={deck.id}
-                className="group relative overflow-hidden bg-white/10 backdrop-blur-md border-white/20 ring-white/20 transition-all duration-300 hover:bg-white/15 hover:border-white/30 hover:ring-white/30 hover:shadow-2xl hover:scale-105"
-              >
-                {/* Glassmorphism overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-xl pointer-events-none" />
-                
-                <CardHeader className="relative z-10 space-y-3 p-6">
-                  <CardTitle className="text-xl font-semibold text-white group-hover:text-blue-300 transition-colors">
-                    {deck.title}
-                  </CardTitle>
-                  <div className="flex items-center justify-between text-sm text-gray-400 space-x-4">
-                    <div className="flex items-center gap-1">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                      </svg>
-                      <span>{deck.cardCount} cards</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      <span>{new Date(deck.createdAt).toLocaleDateString()}</span>
-                    </div>
-                  </div>
-                </CardHeader>
-
-                {deck.description && (
-                  <CardContent className="relative z-10">
-                    <CardDescription className="text-gray-300 line-clamp-2">
-                      {deck.description}
-                    </CardDescription>
-                  </CardContent>
-                )}
-
-                <CardFooter className="relative z-10 bg-transparent border-t-white/10 p-6 space-x-3 mt-auto">
-                  <Link href={`/decks/${deck.id}`} className="flex-1">
-                    <Button 
-                      variant="default" 
-                      size="sm"
-                      className="w-full"
-                    >
-                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.168 18.477 18.582 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                      </svg>
-                      Study
-                    </Button>
-                  </Link>
-                  <Link href={`/decks/${deck.id}`} className="flex-1">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="w-full"
-                    >
-                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                      View
-                    </Button>
-                  </Link>
-                </CardFooter>
-              </Card>
+              <DeckCard key={deck.id} deck={deck} />
             ))}
           </section>
         ) : (
