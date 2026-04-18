@@ -86,3 +86,11 @@ export async function deleteDeck(deckId: string, userId: string): Promise<boolea
   await db.delete(decks).where(eq(decks.id, deckId));
   return true;
 }
+
+export async function checkDeckTitleExists(title: string, userId: string): Promise<boolean> {
+  const [existingDeck] = await db.select()
+    .from(decks)
+    .where(and(eq(decks.title, title), eq(decks.userId, userId)));
+  
+  return !!existingDeck;
+}
