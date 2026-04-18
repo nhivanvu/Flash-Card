@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { z } from 'zod';
+import type { Card } from '@/db/schema';
 import {
   Dialog,
   DialogContent,
@@ -11,39 +12,71 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 import { addCardAction } from './actions';
 
-// Validation schema matching the server action
-const AddCardSchema = z.object({
-  front: z.string().min(1, 'Front is required').max(1000, 'Front must be less than 1000 characters'),
-  back: z.string().min(1, 'Back is required').max(1000, 'Back must be less than 1000 characters'),
+// Validation schema with comprehensive rules
+const createAddCardSchema = (existingCards: Card[]) => z.object({
+  front: z
+    .string()
+    .transform((val) => val.trim())
+    .pipe(
+      z
+        .string()
+        .min(1, 'Front field cannot be empty')
+        .max(500, 'Front text cannot exceed 500 characters')
+        .refine((front) => {
+          return !existingCards.some(card => 
+            card.front.trim().toLowerCase() === front.toLowerCase()
+          );
+        }, 'A card with this front text already exists in the deck')
+    ),
+  back: z
+    .string()
+    .transform((val) => val.trim())
+    .pipe(
+      z
+        .string()
+        .min(1, 'Back field cannot be empty')
+        .max(500, 'Back text cannot exceed 500 characters')
+    ),
+}).refine((data) => data.front !== data.back, {
+  message: 'Front and back text cannot be identical',
+  path: ['back'],
 });
-
-type AddCardFormData = z.infer<typeof AddCardSchema>;
 
 interface AddCardModalProps {
   deckId: string;
   isOpen: boolean;
   onClose: () => void;
+  existingCards: Card[];
 }
 
-export function AddCardModal({ deckId, isOpen, onClose }: AddCardModalProps) {
-  const [formData, setFormData] = useState<AddCardFormData>({
+export function AddCardModal({ deckId, isOpen, onClose, existingCards }: AddCardModalProps) {
+  const [formData, setFormData] = useState({
     front: '',
     back: '',
   });
-  const [errors, setErrors] = useState<Partial<AddCardFormData>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
 
+  // Create schema with existing cards context
+  const AddCardSchema = createAddCardSchema(existingCards);
+  
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    
+    // Prevent double submission
+    if (isSubmitting) return;
+    
     setIsSubmitting(true);
     setErrors({});
 
     try {
-      // Client-side validation
+      // Client-side validation with comprehensive rules
       const validatedData = AddCardSchema.parse(formData);
 
       // Call server action
@@ -52,28 +85,37 @@ export function AddCardModal({ deckId, isOpen, onClose }: AddCardModalProps) {
         deckId,
       });
 
+      // Show success toast
+      toast({
+        title: "Card added successfully!",
+        variant: "success",
+      });
+
       // Reset form and close modal
       setFormData({ front: '', back: '' });
       onClose();
     } catch (error) {
       if (error instanceof z.ZodError) {
-        const fieldErrors: Partial<AddCardFormData> = {};
+        const fieldErrors: Record<string, string> = {};
         error.issues.forEach((err) => {
-          if (err.path[0]) {
-            fieldErrors[err.path[0] as keyof AddCardFormData] = err.message;
-          }
+          const fieldName = err.path[0]?.toString() || 'general';
+          fieldErrors[fieldName] = err.message;
         });
         setErrors(fieldErrors);
       } else {
         console.error('Error adding card:', error);
-        // You could set a general error message here
+        toast({
+          title: "Error adding card",
+          description: "An unexpected error occurred. Please try again.",
+          variant: "destructive",
+        });
       }
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleInputChange = (field: keyof AddCardFormData, value: string) => {
+  const handleInputChange = (field: 'front' | 'back', value: string) => {
     setFormData(prev => ({
       ...prev,
       [field]: value,
@@ -82,7 +124,7 @@ export function AddCardModal({ deckId, isOpen, onClose }: AddCardModalProps) {
     if (errors[field]) {
       setErrors(prev => ({
         ...prev,
-        [field]: undefined,
+        [field]: '',
       }));
     }
   };
@@ -105,38 +147,48 @@ export function AddCardModal({ deckId, isOpen, onClose }: AddCardModalProps) {
 
           <form onSubmit={handleSubmit} className="space-y-6 mt-6">
             <div className="space-y-2">
-              <Label htmlFor="front" className="text-white font-medium">
-                Front
-              </Label>
-              <Input
+              <div className="flex justify-between items-center">
+                <Label htmlFor="front" className="text-white font-medium">
+                  Front
+                </Label>
+                <span className={`text-xs ${formData.front.length > 500 ? 'text-red-400' : 'text-gray-400'}`}>
+                  {formData.front.length}/500
+                </span>
+              </div>
+              <Textarea
                 id="front"
-                type="text"
+                rows={3}
                 value={formData.front}
                 onChange={(e) => handleInputChange('front', e.target.value)}
                 placeholder="Enter the question or prompt..."
-                className="bg-white/10 border-white/20 text-white placeholder-gray-400 focus:border-white/40 focus:ring-white/20"
+                className="bg-white/10 border-white/20 text-white placeholder-gray-400 focus:border-white/40 focus:ring-white/20 resize-none"
                 disabled={isSubmitting}
               />
               {errors.front && (
-                <p className="text-red-400 text-sm">{errors.front}</p>
+                <p className="text-red-400 text-sm mt-1">{errors.front}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="back" className="text-white font-medium">
-                Back
-              </Label>
-              <Input
+              <div className="flex justify-between items-center">
+                <Label htmlFor="back" className="text-white font-medium">
+                  Back
+                </Label>
+                <span className={`text-xs ${formData.back.length > 500 ? 'text-red-400' : 'text-gray-400'}`}>
+                  {formData.back.length}/500
+                </span>
+              </div>
+              <Textarea
                 id="back"
-                type="text"
+                rows={3}
                 value={formData.back}
                 onChange={(e) => handleInputChange('back', e.target.value)}
                 placeholder="Enter the answer or explanation..."
-                className="bg-white/10 border-white/20 text-white placeholder-gray-400 focus:border-white/40 focus:ring-white/20"
+                className="bg-white/10 border-white/20 text-white placeholder-gray-400 focus:border-white/40 focus:ring-white/20 resize-none"
                 disabled={isSubmitting}
               />
               {errors.back && (
-                <p className="text-red-400 text-sm">{errors.back}</p>
+                <p className="text-red-400 text-sm mt-1">{errors.back}</p>
               )}
             </div>
 

@@ -3,6 +3,7 @@ import { Poppins, Geist_Mono } from "next/font/google";
 import { ClerkProvider, SignInButton, SignUpButton, Show, UserButton } from "@clerk/nextjs";
 import { dark } from "@clerk/ui/themes";
 import { Button } from "@/components/ui/button";
+import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -58,6 +59,7 @@ export default function RootLayout({
             </div>
           </header>
           {children}
+          <Toaster />
         </ClerkProvider>
       </body>
     </html>

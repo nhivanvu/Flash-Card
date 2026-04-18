@@ -205,6 +205,7 @@ export default function DeckPageClient({ deck, cards }: DeckPageClientProps) {
         deckId={deck.id}
         isOpen={isAddCardModalOpen}
         onClose={closeAddCardModal}
+        existingCards={cards}
       />
     </div>
   );
