@@ -12,8 +12,16 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center px-4">
-      <div className="max-w-6xl w-full mx-auto">
+    <div className="min-h-screen bg-black flex items-center justify-center px-4 relative overflow-hidden">
+      {/* Gradient Orbs - positioned behind flashcard */}
+      <div className="absolute w-96 h-96 rounded-full blur-3xl opacity-20 z-0" 
+           style={{ backgroundColor: '#8b5cf6', top: '10%', right: '15%' }} />
+      <div className="absolute w-80 h-80 rounded-full blur-3xl opacity-30 z-0" 
+           style={{ backgroundColor: '#3b82f6', top: '40%', right: '25%' }} />
+      <div className="absolute w-72 h-72 rounded-full blur-3xl opacity-25 z-0" 
+           style={{ backgroundColor: '#6366f1', top: '60%', right: '10%' }} />
+
+      <div className="max-w-6xl w-full mx-auto relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left side - Content */}
           <div className="text-center lg:text-left space-y-8">
@@ -43,12 +51,11 @@ export default async function HomePage() {
               </SignInButton>
             </div>
           </div>
-
+          
           {/* Right side - Animated Flashcard */}
           <FlipCard />
         </div>
       </div>
-
     </div>
   );
 }
