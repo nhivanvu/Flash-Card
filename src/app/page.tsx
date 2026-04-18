@@ -14,16 +14,12 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center px-4 relative overflow-hidden">
       {/* Gradient Orbs - positioned behind flashcard */}
-      <div className="absolute w-96 h-96 rounded-full blur-3xl opacity-50 z-0" 
-           style={{ backgroundColor: '#8b5cf6', top: '50%', right: '15%', transform: 'translateY(-50%)' }} />
-      <div className="absolute w-80 h-80 rounded-full blur-xl opacity-30 z-0" 
-           style={{ backgroundColor: '#3b82f6', top: '50%', right: '25%', transform: 'translateY(-50%)' }} />
-      <div className="absolute w-72 h-72 rounded-full blur-3xl opacity-65 z-0" 
-           style={{ backgroundColor: '#6366f1', top: '50%', right: '10%', transform: 'translateY(-50%)' }} />
-      
-      {/* Small purple blob behind headline text */}
-      <div className="absolute w-48 h-48 rounded-full blur-2xl opacity-15 z-0" 
-           style={{ backgroundColor: '#8b5cf6', top: '50%', left: '10%', transform: 'translateY(-50%)' }} />
+      <div className="absolute w-70 h-70 rounded-full blur-3xl opacity-50 z-0" 
+           style={{ backgroundColor: '#8b5cf6', top: '10%', right: '15%' }} />
+      <div className="absolute w-90 h-90 rounded-full blur-3xl opacity-60 z-0" 
+           style={{ backgroundColor: '#3b82f6', top: '40%', right: '25%' }} />
+      <div className="absolute w-50 h-50 rounded-full blur-3xl opacity-65 z-0" 
+           style={{ backgroundColor: '#6366f1', top: '60%', right: '10%' }} />
 
       <div className="max-w-6xl w-full mx-auto relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
