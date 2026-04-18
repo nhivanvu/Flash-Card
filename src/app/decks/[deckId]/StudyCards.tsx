@@ -8,7 +8,7 @@ interface StudyCardsProps {
   cards: Card[];
 }
 
-export function StudyCards({ cards }: StudyCardsProps) {
+export default function StudyCards({ cards }: StudyCardsProps) {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [isStudyMode, setIsStudyMode] = useState(false);

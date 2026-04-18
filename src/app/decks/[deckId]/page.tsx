@@ -11,7 +11,7 @@ import {
   CardContent,
   CardDescription 
 } from '@/components/ui/card';
-import { StudyCards } from './StudyCards';
+import StudyCards from './StudyCards';
 
 interface DeckPageProps {
   params: {
