@@ -209,6 +209,161 @@ export function CreateDeckForm() {
 }
 ```
 
+## Client Component Separation
+
+Interactive components that require `use client` (animations, state, event handlers) must always be extracted into separate Client Component files. Page files (`page.tsx`) and layout files (`layout.tsx`) must always remain Server Components.
+
+### ✅ GOOD - Separated Client Component
+```typescript
+// app/dashboard/page.tsx (Server Component)
+import { auth } from '@clerk/nextjs';
+import { db } from '@/db';
+import { decks } from '@/db/schema';
+import { eq } from 'drizzle-orm';
+import { DecksList } from './DecksList'; // Client Component
+
+export default async function DashboardPage() {
+  const { userId } = auth();
+  if (!userId) redirect('/sign-in');
+
+  // Fetch data in Server Component
+  const userDecks = await db.select()
+    .from(decks)
+    .where(eq(decks.userId, userId));
+
+  return (
+    <main>
+      <h1>Dashboard</h1>
+      <DecksList decks={userDecks} />
+    </main>
+  );
+}
+
+// app/dashboard/DecksList.tsx (Client Component)
+'use client';
+import { useState } from 'react';
+import type { Deck } from '@/db/schema';
+
+interface DecksListProps {
+  decks: Deck[];
+}
+
+export function DecksList({ decks }: DecksListProps) {
+  const [filter, setFilter] = useState('');
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  const filteredDecks = decks.filter(deck => 
+    deck.title.toLowerCase().includes(filter.toLowerCase())
+  );
+
+  const handleCardClick = (deckId: string) => {
+    setIsAnimating(true);
+    // Handle click logic
+  };
+
+  return (
+    <div>
+      <input
+        type="text"
+        placeholder="Filter decks..."
+        value={filter}
+        onChange={(e) => setFilter(e.target.value)}
+      />
+      <div className={isAnimating ? 'animate-pulse' : ''}>
+        {filteredDecks.map(deck => (
+          <div key={deck.id} onClick={() => handleCardClick(deck.id)}>
+            {deck.title}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
+### ❌ BAD - Page with use client
+```typescript
+// ❌ DON'T add 'use client' to page files
+'use client';
+import { useState, useEffect } from 'react';
+
+export default function DashboardPage() {
+  const [decks, setDecks] = useState([]);
+  const [filter, setFilter] = useState('');
+
+  useEffect(() => {
+    fetch('/api/decks').then(r => r.json()).then(setDecks);
+  }, []);
+
+  return (
+    <div>
+      <input 
+        value={filter} 
+        onChange={(e) => setFilter(e.target.value)} 
+      />
+      {/* Page logic mixed with client state */}
+    </div>
+  );
+}
+```
+
+### ❌ BAD - Layout with use client
+```typescript
+// ❌ DON'T add 'use client' to layout files
+'use client';
+import { useState } from 'react';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const [theme, setTheme] = useState('light');
+
+  return (
+    <html>
+      <body>
+        <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
+          Toggle Theme
+        </button>
+        {children}
+      </body>
+    </html>
+  );
+}
+```
+
+### ✅ GOOD - Layout with Extracted Client Component
+```typescript
+// app/layout.tsx (Server Component)
+import { ThemeProvider } from './ThemeProvider';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html>
+      <body>
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
+      </body>
+    </html>
+  );
+}
+
+// app/ThemeProvider.tsx (Client Component)
+'use client';
+import { useState, createContext, useContext } from 'react';
+
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [theme, setTheme] = useState('light');
+
+  return (
+    <div className={theme}>
+      <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
+        Toggle Theme
+      </button>
+      {children}
+    </div>
+  );
+}
+```
+
 ## Summary Checklist
 
 - [ ] Data fetching only in Server Components
@@ -218,3 +373,7 @@ export function CreateDeckForm() {
 - [ ] User authentication checked in all Server Actions
 - [ ] Proper error handling with validation feedback
 - [ ] `revalidatePath()` called after mutations
+- [ ] Interactive components extracted into separate Client Component files
+- [ ] Page files (`page.tsx`) remain Server Components (no `use client`)
+- [ ] Layout files (`layout.tsx`) remain Server Components (no `use client`)
+- [ ] Server data passed as props to Client Components
