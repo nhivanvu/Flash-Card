@@ -144,7 +144,7 @@ export default function StudyCards({ cards, isStudyMode, onEndStudySession }: St
         {currentCardIndex < cards.length - 1 ? (
           <Button
             onClick={handleNext}
-            className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white"
+            className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-semibold px-6 py-3 rounded-lg"
           >
             Next
             <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
