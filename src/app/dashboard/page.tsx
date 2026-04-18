@@ -1,7 +1,10 @@
-import { auth } from '@clerk/nextjs/server'
+import { auth, currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
-import Link from 'next/link'
+import { db } from '@/db'
+import { decks, cards } from '@/db/schema'
+import { eq, desc, count } from 'drizzle-orm'
+import { Button } from '@/components/ui/button'
 
 export const metadata: Metadata = {
   title: 'Dashboard - FlashyCardy',
@@ -16,142 +19,156 @@ export default async function Dashboard() {
     redirect('/')
   }
 
+  // Get user details from Clerk
+  const user = await currentUser()
+  const firstName = user?.firstName || 'Friend'
+
+  // Fetch user's decks with card counts
+  const userDecksWithCardCounts = await db
+    .select({
+      id: decks.id,
+      title: decks.title,
+      description: decks.description,
+      createdAt: decks.createdAt,
+      cardCount: count(cards.id),
+    })
+    .from(decks)
+    .leftJoin(cards, eq(cards.deckId, decks.id))
+    .where(eq(decks.userId, userId))
+    .groupBy(decks.id, decks.title, decks.description, decks.createdAt)
+    .orderBy(desc(decks.createdAt))
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-black relative overflow-hidden">
+      {/* Background gradient orbs */}
+      <div className="absolute w-70 h-70 rounded-full blur-3xl opacity-30 z-0" 
+           style={{ backgroundColor: '#8b5cf6', top: '5%', right: '10%' }} />
+      <div className="absolute w-90 h-90 rounded-full blur-3xl opacity-40 z-0" 
+           style={{ backgroundColor: '#3b82f6', top: '30%', left: '5%' }} />
+      <div className="absolute w-50 h-50 rounded-full blur-3xl opacity-50 z-0" 
+           style={{ backgroundColor: '#6366f1', bottom: '20%', right: '15%' }} />
+
+      <div className="relative z-10 container mx-auto px-4 py-8">
+        {/* Header Section */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Welcome to your Dashboard
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">
+            Welcome back, {firstName}!
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Manage your flash cards and track your learning progress
+          <p className="text-xl text-gray-400">
+            Ready to continue your learning journey?
           </p>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Cards</h3>
-                <p className="text-2xl font-semibold text-gray-900 dark:text-white">12</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
-                <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Mastered</h3>
-                <p className="text-2xl font-semibold text-gray-900 dark:text-white">8</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
-                <svg className="w-6 h-6 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Study Streak</h3>
-                <p className="text-2xl font-semibold text-gray-900 dark:text-white">5 days</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Action Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Create New Deck */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              Create New Deck
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Start building a new collection of flash cards for your next topic
-            </p>
-            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
-              Create Deck
-            </button>
-          </div>
-
-          {/* Study Session */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              Quick Study
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Jump into a study session with your existing flash cards
-            </p>
-            <button className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
-              Start Studying
-            </button>
-          </div>
-
-          {/* Recent Decks */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              Recent Decks
-            </h2>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                <span className="text-gray-900 dark:text-white">JavaScript Fundamentals</span>
-                <span className="text-sm text-gray-500 dark:text-gray-400">24 cards</span>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                <span className="text-gray-900 dark:text-white">React Hooks</span>
-                <span className="text-sm text-gray-500 dark:text-gray-400">18 cards</span>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                <span className="text-gray-900 dark:text-white">CSS Grid</span>
-                <span className="text-sm text-gray-500 dark:text-gray-400">15 cards</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Progress Chart Placeholder */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              Weekly Progress
-            </h2>
-            <div className="flex items-center justify-center h-32 bg-gray-50 dark:bg-gray-700 rounded-lg">
-              <div className="text-center">
-                <div className="w-12 h-12 mx-auto mb-2 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center">
-                  <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                </div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Chart coming soon</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Back to Home Link */}
-        <div className="mt-8 text-center">
-          <Link 
-            href="/"
-            className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-500 font-medium"
+        {/* Create New Deck Button */}
+        <div className="mb-8">
+          <Button 
+            size="lg" 
+            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold px-8 py-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
           >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
-            Back to Home
-          </Link>
+            Create New Deck
+          </Button>
         </div>
+
+        {/* Decks Grid */}
+        {userDecksWithCardCounts.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {userDecksWithCardCounts.map((deck) => (
+              <div
+                key={deck.id}
+                className="group relative overflow-hidden rounded-xl bg-white/10 backdrop-blur-md border border-white/20 p-6 transition-all duration-300 hover:bg-white/15 hover:border-white/30 hover:shadow-2xl hover:scale-105"
+              >
+                {/* Glassmorphism overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-xl" />
+                
+                <div className="relative z-10">
+                  {/* Deck Header */}
+                  <div className="mb-4">
+                    <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-blue-300 transition-colors">
+                      {deck.title}
+                    </h3>
+                    <div className="flex items-center justify-between text-sm text-gray-400">
+                      <span className="flex items-center">
+                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                        {deck.cardCount} cards
+                      </span>
+                      <span className="flex items-center">
+                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        {new Date(deck.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  {deck.description && (
+                    <p className="text-gray-300 text-sm mb-4 line-clamp-2">
+                      {deck.description}
+                    </p>
+                  )}
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-3 mt-6">
+                    <Button 
+                      variant="default" 
+                      size="sm"
+                      className="flex-1 bg-green-600/80 hover:bg-green-600 text-white backdrop-blur-sm border-0"
+                    >
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.168 18.477 18.582 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                      Study
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="flex-1 border-white/30 text-white hover:bg-white/10 backdrop-blur-sm"
+                    >
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      Edit
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          /* Empty State */
+          <div className="text-center py-16">
+            <div className="mx-auto max-w-md">
+              {/* Empty state icon */}
+              <div className="mx-auto w-24 h-24 mb-6 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
+                <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+              </div>
+              
+              <h3 className="text-2xl font-semibold text-white mb-4">
+                You don't have any decks yet
+              </h3>
+              <p className="text-gray-400 mb-8">
+                Create your first deck to start your learning journey with flashcards
+              </p>
+              
+              <Button 
+                size="lg" 
+                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold px-8 py-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Create your first deck
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
