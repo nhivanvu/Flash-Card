@@ -12,6 +12,7 @@ import {
   CardDescription 
 } from '@/components/ui/card';
 import StudyCards from './StudyCards';
+import { AddCardModal } from './AddCardModal';
 
 interface DeckPageClientProps {
   deck: Deck;
@@ -20,6 +21,7 @@ interface DeckPageClientProps {
 
 export default function DeckPageClient({ deck, cards }: DeckPageClientProps) {
   const [isStudyMode, setIsStudyMode] = useState(false);
+  const [isAddCardModalOpen, setIsAddCardModalOpen] = useState(false);
 
   const startStudySession = () => {
     setIsStudyMode(true);
@@ -27,6 +29,14 @@ export default function DeckPageClient({ deck, cards }: DeckPageClientProps) {
 
   const endStudySession = () => {
     setIsStudyMode(false);
+  };
+
+  const openAddCardModal = () => {
+    setIsAddCardModalOpen(true);
+  };
+
+  const closeAddCardModal = () => {
+    setIsAddCardModalOpen(false);
   };
 
   return (
@@ -110,9 +120,13 @@ export default function DeckPageClient({ deck, cards }: DeckPageClientProps) {
               <section className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-semibold text-white">All Cards</h2>
-                  <Button variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20">
-    + Add Card
-  </Button>
+                  <Button 
+                    onClick={openAddCardModal}
+                    variant="outline" 
+                    className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                  >
+                    + Add Card
+                  </Button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {cards.map((card) => (
@@ -172,7 +186,10 @@ export default function DeckPageClient({ deck, cards }: DeckPageClientProps) {
                 </p>
               </div>
               
-              <Button className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-semibold px-6 py-3 rounded-lg mx-auto">
+              <Button 
+                onClick={openAddCardModal}
+                className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-semibold px-6 py-3 rounded-lg mx-auto"
+              >
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
@@ -182,6 +199,13 @@ export default function DeckPageClient({ deck, cards }: DeckPageClientProps) {
           </section>
         )}
       </div>
+
+      {/* Add Card Modal */}
+      <AddCardModal 
+        deckId={deck.id}
+        isOpen={isAddCardModalOpen}
+        onClose={closeAddCardModal}
+      />
     </div>
   );
 }
