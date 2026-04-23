@@ -64,10 +64,10 @@ export default function StudyCards({ cards, isStudyMode, onEndStudySession }: St
     setIsFlipped(!isFlipped);
     if (!isFlipped) {
       setAwaitingResponse(true);
-      // Delay showing response buttons to match card flip animation (700ms)
+      // Show response buttons exactly when card flip animation completes (700ms)
       setTimeout(() => {
         setShowResponseButtons(true);
-      }, 700);
+      }, 680); // Slightly reduced to account for execution time and match animation precisely
     } else {
       setShowResponseButtons(false);
     }
@@ -274,22 +274,23 @@ export default function StudyCards({ cards, isStudyMode, onEndStudySession }: St
         </Button>
       </div>
 
-      {/* Score tracker centered above progress bar */}
-      {(correctCount > 0 || incorrectCount > 0) && (
-        <div className="flex justify-center items-center gap-4 text-sm">
-          <span className="text-green-400">
-            ✅ {correctCount}
-          </span>
-          <span className="text-red-400">
-            ❌ {incorrectCount}
-          </span>
-        </div>
-      )}
-
       {/* Progress bar */}
       <div className="space-y-2">
-        <div className="flex justify-between text-sm text-gray-400">
+        <div className="flex justify-between items-center text-sm text-gray-400">
           <span>Card {currentCardIndex + 1} of {shuffledCards.length}</span>
+          
+          {/* Score tracker centered between labels */}
+          {(correctCount > 0 || incorrectCount > 0) && (
+            <div className="flex items-center gap-3 text-sm">
+              <span className="text-green-400">
+                ✅ {correctCount}
+              </span>
+              <span className="text-red-400">
+                ❌ {incorrectCount}
+              </span>
+            </div>
+          )}
+          
           <span>{Math.round(progress)}% complete</span>
         </div>
         <div className="w-full bg-white/10 rounded-full h-2">
