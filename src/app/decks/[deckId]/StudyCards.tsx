@@ -14,10 +14,34 @@ export default function StudyCards({ cards, isStudyMode, onEndStudySession }: St
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
 
-  if (cards.length === 0 || !isStudyMode) return null;
+  const handleNext = () => {
+    if (currentCardIndex < cards.length - 1) {
+      setCurrentCardIndex(currentCardIndex + 1);
+      setIsFlipped(false);
+    } else {
+      // End of study session
+      onEndStudySession();
+      setCurrentCardIndex(0);
+      setIsFlipped(false);
+    }
+  };
 
-  const currentCard = cards[currentCardIndex];
-  const progress = ((currentCardIndex + 1) / cards.length) * 100;
+  const handlePrevious = () => {
+    if (currentCardIndex > 0) {
+      setCurrentCardIndex(currentCardIndex - 1);
+      setIsFlipped(false);
+    }
+  };
+
+  const handleFlip = () => {
+    setIsFlipped(!isFlipped);
+  };
+
+  const endStudySession = () => {
+    onEndStudySession();
+    setCurrentCardIndex(0);
+    setIsFlipped(false);
+  };
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -50,34 +74,11 @@ export default function StudyCards({ cards, isStudyMode, onEndStudySession }: St
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [currentCardIndex, isFlipped]); // Dependencies to ensure handlers use current state
 
-  const handleNext = () => {
-    if (currentCardIndex < cards.length - 1) {
-      setCurrentCardIndex(currentCardIndex + 1);
-      setIsFlipped(false);
-    } else {
-      // End of study session
-      onEndStudySession();
-      setCurrentCardIndex(0);
-      setIsFlipped(false);
-    }
-  };
+  // Early return after all hooks are called
+  if (cards.length === 0 || !isStudyMode) return null;
 
-  const handlePrevious = () => {
-    if (currentCardIndex > 0) {
-      setCurrentCardIndex(currentCardIndex - 1);
-      setIsFlipped(false);
-    }
-  };
-
-  const handleFlip = () => {
-    setIsFlipped(!isFlipped);
-  };
-
-  const endStudySession = () => {
-    onEndStudySession();
-    setCurrentCardIndex(0);
-    setIsFlipped(false);
-  };
+  const currentCard = cards[currentCardIndex];
+  const progress = ((currentCardIndex + 1) / cards.length) * 100;
 
   return (
     <section className="space-y-6">
