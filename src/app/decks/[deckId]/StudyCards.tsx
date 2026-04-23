@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Card } from '@/db/schema';
 import { Button } from '@/components/ui/button';
 
@@ -18,6 +18,37 @@ export default function StudyCards({ cards, isStudyMode, onEndStudySession }: St
 
   const currentCard = cards[currentCardIndex];
   const progress = ((currentCardIndex + 1) / cards.length) * 100;
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Prevent default behavior for handled keys
+      const handledKeys = [' ', 'Enter', 'ArrowRight', 'ArrowLeft', 'l', 'j', 'L', 'J'];
+      if (handledKeys.includes(event.key)) {
+        event.preventDefault();
+      }
+
+      switch (event.key) {
+        case ' ': // Spacebar
+        case 'Enter':
+          handleFlip();
+          break;
+        case 'ArrowRight':
+        case 'l':
+        case 'L':
+          handleNext();
+          break;
+        case 'ArrowLeft':
+        case 'j':
+        case 'J':
+          handlePrevious();
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [currentCardIndex, isFlipped]); // Dependencies to ensure handlers use current state
 
   const handleNext = () => {
     if (currentCardIndex < cards.length - 1) {
@@ -113,6 +144,30 @@ export default function StudyCards({ cards, isStudyMode, onEndStudySession }: St
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Keyboard Shortcuts Hints */}
+      <div className="flex justify-center items-center gap-3 pb-4">
+        <div className="flex items-center gap-2 text-xs text-gray-400">
+          <span className="inline-flex items-center px-2 py-1 rounded-md bg-gray-800/50 border border-gray-700/50 text-gray-300 font-mono">
+            Space
+          </span>
+          <span>to flip</span>
+        </div>
+        <div className="w-px h-4 bg-gray-600/50"></div>
+        <div className="flex items-center gap-2 text-xs text-gray-400">
+          <span className="inline-flex items-center px-2 py-1 rounded-md bg-gray-800/50 border border-gray-700/50 text-gray-300 font-mono">
+            →
+          </span>
+          <span>next</span>
+        </div>
+        <div className="w-px h-4 bg-gray-600/50"></div>
+        <div className="flex items-center gap-2 text-xs text-gray-400">
+          <span className="inline-flex items-center px-2 py-1 rounded-md bg-gray-800/50 border border-gray-700/50 text-gray-300 font-mono">
+            ←
+          </span>
+          <span>previous</span>
         </div>
       </div>
 
