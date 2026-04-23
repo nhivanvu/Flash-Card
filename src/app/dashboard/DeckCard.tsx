@@ -1,6 +1,6 @@
 'use client'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { 
   Card,
@@ -10,6 +10,15 @@ import {
   CardFooter,
   CardDescription 
 } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { deleteDeckAction } from './actions'
 
 interface DeckCardProps {
   deck: {
@@ -23,6 +32,8 @@ interface DeckCardProps {
 
 export function DeckCard({ deck }: DeckCardProps) {
   const router = useRouter()
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const handleCardClick = () => {
     router.push(`/decks/${deck.id}`)
@@ -33,9 +44,22 @@ export function DeckCard({ deck }: DeckCardProps) {
     router.push(`/decks/${deck.id}/edit`)
   }
 
-  const handleStudyClick = (e: React.MouseEvent) => {
+  const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation()
-    router.push(`/decks/${deck.id}`)
+    setShowDeleteDialog(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    setIsDeleting(true)
+    try {
+      await deleteDeckAction(deck.id)
+      setShowDeleteDialog(false)
+    } catch (error) {
+      console.error('Failed to delete deck:', error)
+      // You could add toast notification here
+    } finally {
+      setIsDeleting(false)
+    }
   }
 
   return (
@@ -76,17 +100,6 @@ export function DeckCard({ deck }: DeckCardProps) {
 
       <CardFooter className="relative z-10 bg-transparent border-t-white/10 p-6 space-x-3 mt-auto">
         <Button 
-          onClick={handleStudyClick}
-          variant="default" 
-          size="sm"
-          className="w-full flex-1"
-        >
-          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.168 18.477 18.582 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-          </svg>
-          Study
-        </Button>
-        <Button 
           onClick={handleEditClick}
           variant="outline" 
           size="sm"
@@ -97,7 +110,45 @@ export function DeckCard({ deck }: DeckCardProps) {
           </svg>
           Edit
         </Button>
+        <Button 
+          onClick={handleDeleteClick}
+          variant="outline" 
+          size="sm"
+          className="w-full flex-1 border-red-500/50 text-red-400 hover:bg-red-500/10 hover:border-red-400"
+        >
+          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+          Delete
+        </Button>
       </CardFooter>
+
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent className="bg-black/95 backdrop-blur-md border border-white/20">
+          <DialogHeader>
+            <DialogTitle className="text-white">Delete {deck.title}?</DialogTitle>
+            <DialogDescription className="text-gray-300">
+              This will permanently delete all {deck.cardCount} cards. This cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? 'Deleting...' : 'Delete'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   )
 }

@@ -67,7 +67,7 @@ export default function StudyCards({ cards, isStudyMode, onEndStudySession }: St
       // Show response buttons exactly when card flip animation completes (700ms)
       setTimeout(() => {
         setShowResponseButtons(true);
-      }, 680); // Slightly reduced to account for execution time and match animation precisely
+      }, 480); // Slightly reduced to account for execution time and match animation precisely
     } else {
       setShowResponseButtons(false);
     }
@@ -352,7 +352,7 @@ export default function StudyCards({ cards, isStudyMode, onEndStudySession }: St
             className="flashcard-container cursor-pointer" 
             onClick={handleFlip}
           >
-            <div className={`flashcard-inner relative w-96 h-64 transition-transform duration-700 preserve-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
+            <div className={`flashcard-inner relative w-96 h-64 transition-transform duration-500 preserve-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
               {/* Front of card */}
               <div 
                 className="flashcard-face absolute inset-0 w-full h-full backface-hidden rounded-xl flex items-center justify-center"
