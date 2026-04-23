@@ -2,7 +2,28 @@
 
 import { auth } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
-import { deleteDeck } from '@/db/queries/decks';
+import { createDeck, deleteDeck } from '@/db/queries/decks';
+
+export async function createDeckAction(data: { title: string; description?: string }) {
+  const { userId } = await auth();
+  if (!userId) {
+    throw new Error('Unauthorized');
+  }
+
+  try {
+    const newDeck = await createDeck({
+      title: data.title,
+      description: data.description,
+      userId,
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true, deck: newDeck };
+  } catch (error) {
+    console.error('Failed to create deck:', error);
+    throw new Error('Failed to create deck');
+  }
+}
 
 export async function deleteDeckAction(deckId: string) {
   const { userId } = await auth();
