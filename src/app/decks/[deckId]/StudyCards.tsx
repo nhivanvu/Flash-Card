@@ -19,6 +19,7 @@ export default function StudyCards({ cards, isStudyMode, onEndStudySession }: St
   const [incorrectCards, setIncorrectCards] = useState<Card[]>([]);
   const [showSummary, setShowSummary] = useState(false);
   const [awaitingResponse, setAwaitingResponse] = useState(false);
+  const [showResponseButtons, setShowResponseButtons] = useState(false);
 
   // Initialize shuffled cards on mount
   useEffect(() => {
@@ -31,6 +32,7 @@ export default function StudyCards({ cards, isStudyMode, onEndStudySession }: St
     setCurrentCardIndex(0);
     setIsFlipped(false);
     setAwaitingResponse(false);
+    setShowResponseButtons(false);
     setCorrectCount(0);
     setIncorrectCount(0);
     setIncorrectCards([]);
@@ -42,6 +44,7 @@ export default function StudyCards({ cards, isStudyMode, onEndStudySession }: St
       setCurrentCardIndex(currentCardIndex + 1);
       setIsFlipped(false);
       setAwaitingResponse(false);
+      setShowResponseButtons(false);
     } else {
       // Show summary screen
       setShowSummary(true);
@@ -53,6 +56,7 @@ export default function StudyCards({ cards, isStudyMode, onEndStudySession }: St
       setCurrentCardIndex(currentCardIndex - 1);
       setIsFlipped(false);
       setAwaitingResponse(false);
+      setShowResponseButtons(false);
     }
   };
 
@@ -60,13 +64,25 @@ export default function StudyCards({ cards, isStudyMode, onEndStudySession }: St
     setIsFlipped(!isFlipped);
     if (!isFlipped) {
       setAwaitingResponse(true);
+      // Delay showing response buttons to match card flip animation (700ms)
+      setTimeout(() => {
+        setShowResponseButtons(true);
+      }, 700);
+    } else {
+      setShowResponseButtons(false);
     }
   };
 
   const handleGotIt = () => {
     setCorrectCount(prev => prev + 1);
     setAwaitingResponse(false);
-    handleNext();
+    setShowResponseButtons(false);
+    // Auto-advance to summary if this is the last card
+    if (currentCardIndex === shuffledCards.length - 1) {
+      setShowSummary(true);
+    } else {
+      handleNext();
+    }
   };
 
   const handleStillLearning = () => {
@@ -74,7 +90,13 @@ export default function StudyCards({ cards, isStudyMode, onEndStudySession }: St
     setIncorrectCount(prev => prev + 1);
     setIncorrectCards(prev => [...prev, currentCard]);
     setAwaitingResponse(false);
-    handleNext();
+    setShowResponseButtons(false);
+    // Auto-advance to summary if this is the last card
+    if (currentCardIndex === shuffledCards.length - 1) {
+      setShowSummary(true);
+    } else {
+      handleNext();
+    }
   };
 
   const studyIncorrectOnly = () => {
@@ -82,6 +104,7 @@ export default function StudyCards({ cards, isStudyMode, onEndStudySession }: St
     setCurrentCardIndex(0);
     setIsFlipped(false);
     setAwaitingResponse(false);
+    setShowResponseButtons(false);
     setCorrectCount(0);
     setIncorrectCount(0);
     setIncorrectCards([]);
@@ -93,6 +116,7 @@ export default function StudyCards({ cards, isStudyMode, onEndStudySession }: St
     setCurrentCardIndex(0);
     setIsFlipped(false);
     setAwaitingResponse(false);
+    setShowResponseButtons(false);
     setCorrectCount(0);
     setIncorrectCount(0);
     setIncorrectCards([]);
@@ -110,8 +134,8 @@ export default function StudyCards({ cards, isStudyMode, onEndStudySession }: St
         event.preventDefault();
       }
 
-      if (awaitingResponse && isFlipped) {
-        // When awaiting response after flip, only allow Got It / Still Learning
+      if (showResponseButtons) {
+        // When showing response buttons, only allow Got It / Still Learning
         switch (event.key) {
           case '1':
           case 'ArrowRight':
@@ -155,7 +179,7 @@ export default function StudyCards({ cards, isStudyMode, onEndStudySession }: St
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [currentCardIndex, isFlipped, awaitingResponse, showSummary]); // Dependencies to ensure handlers use current state
+  }, [currentCardIndex, isFlipped, awaitingResponse, showResponseButtons, showSummary]); // Dependencies to ensure handlers use current state
 
   // Early return after all hooks are called
   if (shuffledCards.length === 0 || !isStudyMode) return null;
@@ -237,15 +261,30 @@ export default function StudyCards({ cards, isStudyMode, onEndStudySession }: St
 
   return (
     <section className="space-y-6">
-      {/* Shuffle button */}
-      <div className="flex justify-center">
+      {/* Shuffle button positioned on the right */}
+      <div className="flex justify-end">
         <Button
           onClick={shuffleCards}
           className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-semibold px-6 py-3 rounded-lg"
         >
-          🔀 Shuffle Cards
+          Shuffle
+          <svg className="w-4 h-4 ml-2" fill="white" stroke="white" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
         </Button>
       </div>
+
+      {/* Score tracker centered above progress bar */}
+      {(correctCount > 0 || incorrectCount > 0) && (
+        <div className="flex justify-center items-center gap-4 text-sm">
+          <span className="text-green-400">
+            ✅ {correctCount}
+          </span>
+          <span className="text-red-400">
+            ❌ {incorrectCount}
+          </span>
+        </div>
+      )}
 
       {/* Progress bar */}
       <div className="space-y-2">
@@ -259,23 +298,11 @@ export default function StudyCards({ cards, isStudyMode, onEndStudySession }: St
             style={{ width: `${progress}%` }}
           />
         </div>
-        
-        {/* Session Stats */}
-        {(correctCount > 0 || incorrectCount > 0) && (
-          <div className="flex justify-center items-center gap-4 text-sm">
-            <span className="text-green-400">
-              ✅ {correctCount}
-            </span>
-            <span className="text-red-400">
-              ❌ {incorrectCount}
-            </span>
-          </div>
-        )}
       </div>
 
       {/* Keyboard Shortcuts Hints */}
       <div className="flex justify-center items-center gap-3 opacity-90 flex-wrap">
-        {awaitingResponse && isFlipped ? (
+        {showResponseButtons ? (
           <>
             <div className="flex items-center gap-1.5 text-xs text-gray-400">
               <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-gray-800/60 border border-gray-700/60 text-gray-300 font-mono text-xs">
@@ -371,7 +398,7 @@ export default function StudyCards({ cards, isStudyMode, onEndStudySession }: St
 
       {/* Study Controls */}
       <div className="flex justify-center items-center gap-4 flex-wrap">
-        {awaitingResponse && isFlipped ? (
+        {showResponseButtons ? (
           // Show Got It / Still Learning buttons
           <>
             <Button
@@ -414,27 +441,15 @@ export default function StudyCards({ cards, isStudyMode, onEndStudySession }: St
               Flip
             </Button>
 
-            {currentCardIndex < shuffledCards.length - 1 ? (
-              <Button
-                onClick={handleNext}
-                className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-semibold px-6 py-3 rounded-lg"
-              >
-                Next
-                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </Button>
-            ) : (
-              <Button
-                onClick={handleNext}
-                className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white"
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                Complete
-              </Button>
-            )}
+            <Button
+              onClick={handleNext}
+              className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-semibold px-6 py-3 rounded-lg"
+            >
+              Next
+              <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Button>
           </>
         )}
 
