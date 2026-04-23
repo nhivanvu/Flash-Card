@@ -124,7 +124,10 @@ export function DeckCard({ deck }: DeckCardProps) {
       </CardFooter>
 
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent className="bg-black/95 backdrop-blur-md border border-white/20">
+        <DialogContent 
+          className="bg-black/95 backdrop-blur-md border border-white/20"
+          onClick={(e) => e.stopPropagation()}
+        >
           <DialogHeader>
             <DialogTitle className="text-white">Delete {deck.title}?</DialogTitle>
             <DialogDescription className="text-gray-300">
@@ -134,14 +137,20 @@ export function DeckCard({ deck }: DeckCardProps) {
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setShowDeleteDialog(false)}
+              onClick={(e) => {
+                e.stopPropagation()
+                setShowDeleteDialog(false)
+              }}
               disabled={isDeleting}
             >
               Cancel
             </Button>
             <Button
               variant="destructive"
-              onClick={handleConfirmDelete}
+              onClick={(e) => {
+                e.stopPropagation()
+                handleConfirmDelete()
+              }}
               disabled={isDeleting}
             >
               {isDeleting ? 'Deleting...' : 'Delete'}
