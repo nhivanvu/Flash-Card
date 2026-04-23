@@ -96,6 +96,30 @@ export default function StudyCards({ cards, isStudyMode, onEndStudySession }: St
         </div>
       </div>
 
+      {/* Keyboard Shortcuts Hints */}
+      <div className="flex justify-center items-center gap-3 opacity-60">
+        <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
+          <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-gray-800/30 border border-gray-700/30 text-gray-300 font-mono text-[9px]">
+            Space
+          </span>
+          <span>flip</span>
+        </div>
+        <div className="w-px h-2.5 bg-gray-600/30"></div>
+        <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
+          <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-gray-800/30 border border-gray-700/30 text-gray-300 font-mono text-[9px]">
+            →
+          </span>
+          <span>next</span>
+        </div>
+        <div className="w-px h-2.5 bg-gray-600/30"></div>
+        <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
+          <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-gray-800/30 border border-gray-700/30 text-gray-300 font-mono text-[9px]">
+            ←
+          </span>
+          <span>previous</span>
+        </div>
+      </div>
+
       {/* Flashcard */}
       <div className="flex justify-center py-8">
         <div className="perspective-1000">
@@ -145,30 +169,6 @@ export default function StudyCards({ cards, isStudyMode, onEndStudySession }: St
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Keyboard Shortcuts Hints */}
-      <div className="flex justify-center items-center gap-3 pb-4">
-        <div className="flex items-center gap-2 text-xs text-gray-400">
-          <span className="inline-flex items-center px-2 py-1 rounded-md bg-gray-800/50 border border-gray-700/50 text-gray-300 font-mono">
-            Space
-          </span>
-          <span>to flip</span>
-        </div>
-        <div className="w-px h-4 bg-gray-600/50"></div>
-        <div className="flex items-center gap-2 text-xs text-gray-400">
-          <span className="inline-flex items-center px-2 py-1 rounded-md bg-gray-800/50 border border-gray-700/50 text-gray-300 font-mono">
-            →
-          </span>
-          <span>next</span>
-        </div>
-        <div className="w-px h-4 bg-gray-600/50"></div>
-        <div className="flex items-center gap-2 text-xs text-gray-400">
-          <span className="inline-flex items-center px-2 py-1 rounded-md bg-gray-800/50 border border-gray-700/50 text-gray-300 font-mono">
-            ←
-          </span>
-          <span>previous</span>
         </div>
       </div>
 
